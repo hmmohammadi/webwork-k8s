@@ -1,3 +1,27 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: webwork-pv
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  capacity:
+    storage: "3Gi"
+  hostPath:
+    path: /mnt/pv002
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: webwork-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -26,12 +50,20 @@ spec:
         - name: WEBWORK_DB_DSN
           value: "DBI:mysql:webwork:db:3306"
         - name: WEBWORK_DB_PASSWORD
-          value: ${WEBWORK_DB_PASSWORD}
+          value: "izuzem"
         - name: WEBWORK_DB_USER
-          value: ${WEBWORK_DB_USER}
+          value: "webworkWrite"
         ports:
           - containerPort: 80
             name: webwork-port
+        volumeMounts:
+        - mountPath: "/opt/webwork/courses"
+          name: courses-volume
+          subPath: "courses"
+      volumes:
+      - name: courses-volume
+        persistentVolumeClaim:
+          claimName: webwork-pvc
   replicas: 1
   selector:
     matchLabels:
