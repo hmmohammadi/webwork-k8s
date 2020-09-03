@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ww2-deploy
+  labels:
+    app: ww2
+    type: webwork2
+spec:
+  template:
+    metadata:
+      name: ww2-pod
+      labels:
+        app: ww2
+        type: webwork2
+    spec:
+      containers:
+      - image: hosseinmohammadi/webwork2:v1.1
+        name: ww2-pod
+        env:
+        - name: WEBWORK_DB_HOST
+          value: 'db'
+        - name: WEBWORK_DB_PORT
+          value: '3306'
+        - name: WEBWORK_DB_NAME
+          value: "webwork"
+        - name: WEBWORK_DB_DSN
+          value: "DBI:mysql:webwork:db:3306"
+        - name: WEBWORK_DB_PASSWORD
+          value: "izuzem"
+        - name: WEBWORK_DB_USER
+          value: "webworkWrite"
+        ports:
+          - containerPort: 80
+            name: webwork-port
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ww2
+      type: webwork2
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webwork-service
+spec:
+  selector:
+    app: ww2
+    type: webwork2
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 31200
+  type: NodePort

@@ -1,0 +1,85 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mariadb-pv
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  capacity:
+    storage: "3Gi"
+  hostPath:
+    path: /mnt/pv001
+
+---
+
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mariadb-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deply
+  labels:
+    app: mariadb
+    type: database
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+      type: database
+  replicas: 1
+  template:
+    metadata:
+      name: mariadb-pod
+      labels:
+        app: mariadb
+        type: database
+    spec:
+      containers:
+      - image: hosseinmohammadi/ww2-db:v1.2
+        name: mariadb
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: izuzem
+        - name: MYSQL_DATABASE
+          value: webwork
+        - name: MYSQL_USER
+          value: webworkWrite
+        ports:
+        - containerPort: 3306
+          name: mariadb
+        volumeMounts:
+        - name: mariadb-persistent-storage
+          mountPath: /var/lib/mysql
+          subPath: "db"
+      volumes:
+      - name: mariadb-persistent-storage
+        persistentVolumeClaim:
+          claimName: mariadb-pvc           
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: db
+spec:
+  selector:
+    app: mariadb
+  ports:
+    - name: mariadbportname
+      port: 3306
+      protocol: TCP
+      
+
+
+#kubectl create secret generic mariadb --from-literal=MARIADB_USER=bn_moodle --from-literal=MARIADB_DATABASE=bitnami_moodle --from-literal=ALLOW_EMPTY_PASSWORD=yes
