@@ -26,9 +26,9 @@ spec:
         - name: WEBWORK_DB_DSN
           value: "DBI:mysql:webwork:db:3306"
         - name: WEBWORK_DB_PASSWORD
-          value: "izuzem"
+          value: ${WEBWORK_DB_PASSWORD}
         - name: WEBWORK_DB_USER
-          value: "webworkWrite"
+          value: ${WEBWORK_DB_USER}
         ports:
           - containerPort: 80
             name: webwork-port

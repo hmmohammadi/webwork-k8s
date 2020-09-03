@@ -50,11 +50,11 @@ spec:
         name: mariadb
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: izuzem
+          value: ${WEBWORK_DB_PASSWORD}
         - name: MYSQL_DATABASE
           value: webwork
         - name: MYSQL_USER
-          value: webworkWrite
+          value: ${WEBWORK_DB_USER}
         ports:
         - containerPort: 3306
           name: mariadb
