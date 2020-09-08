@@ -38,7 +38,7 @@ spec:
         type: webwork2
     spec:
       containers:
-      - image: hosseinmohammadi/webwork2:v1.1
+      - image: hosseinmohammadi/webwork2:v1.4
         name: ww2-pod
         env:
         - name: WEBWORK_DB_HOST
@@ -53,6 +53,8 @@ spec:
           value: "izuzem"
         - name: WEBWORK_DB_USER
           value: "webworkWrite"
+        - name: WEBWORK_TIMEZONE
+          value: "Europe/Istanbul"
         ports:
           - containerPort: 80
             name: webwork-port
