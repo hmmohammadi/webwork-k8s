@@ -2,13 +2,13 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mariadb-pv
+  name: ww-mariadb-pv
 spec:
   accessModes: [ "ReadWriteOnce" ]
   capacity:
     storage: "3Gi"
   hostPath:
-    path: /mnt/pv001
+    path: /mnt/db
 
 ---
 
@@ -16,7 +16,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mariadb-pvc
+  name: ww-mariadb-pvc
 spec:
   accessModes:
     - ReadWriteOnce
@@ -28,55 +28,55 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mariadb-deply
+  name: ww-mariadb-deploy
   labels:
-    app: mariadb
-    type: database
+    app: ww-mariadb
+    type: ww-database
 spec:
   selector:
     matchLabels:
-      app: mariadb
-      type: database
+      app: ww-mariadb
+      type: ww-database
   replicas: 1
   template:
     metadata:
-      name: mariadb-pod
+      name: ww-mariadb-pod
       labels:
-        app: mariadb
-        type: database
+        app: ww-mariadb
+        type: ww-database
     spec:
       containers:
       - image: hosseinmohammadi/ww2-db:v1.2
-        name: mariadb
+        name: ww-mariadb
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: ${WEBWORK_DB_PASSWORD}
+          value: izuzem
         - name: MYSQL_DATABASE
           value: webwork
         - name: MYSQL_USER
-          value: ${WEBWORK_DB_USER}
+          value: webworkWrite
         ports:
         - containerPort: 3306
-          name: mariadb
+          name: ww-mariadb
         volumeMounts:
-        - name: mariadb-persistent-storage
+        - name: ww-mariadb-persistent-storage
           mountPath: /var/lib/mysql
           subPath: "db"
       volumes:
-      - name: mariadb-persistent-storage
+      - name: ww-mariadb-persistent-storage
         persistentVolumeClaim:
-          claimName: mariadb-pvc           
+          claimName: ww-mariadb-pvc           
 ---
 
 kind: Service
 apiVersion: v1
 metadata:
-  name: db
+  name: ww-db
 spec:
   selector:
-    app: mariadb
+    app: ww-mariadb
   ports:
-    - name: mariadbportname
+    - name: wwmariadbportname
       port: 3306
       protocol: TCP
       

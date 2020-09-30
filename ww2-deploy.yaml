@@ -1,19 +1,42 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: webwork-pv
+  name: ww-pv-course
 spec:
   accessModes: [ "ReadWriteOnce" ]
   capacity:
     storage: "3Gi"
   hostPath:
-    path: /mnt/pv002
+    path: /mnt/courses
 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: webwork-pvc
+  name: ww-pvc-course
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ww-pv-htdocs
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  capacity:
+    storage: "3Gi"
+  hostPath:
+    path: /mnt/htdocs
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ww-pvc-htdocs
 spec:
   accessModes:
     - ReadWriteOnce
@@ -22,24 +45,25 @@ spec:
       storage: 3Gi
 ---
 
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ww2-deploy
+  name: ww-deployment
   labels:
-    app: ww2
-    type: webwork2
+    app: ww
+    type: webwork
 spec:
   template:
     metadata:
-      name: ww2-pod
+      name: ww-pod
       labels:
-        app: ww2
-        type: webwork2
+        app: ww
+        type: webwork
     spec:
       containers:
-      - image: hosseinmohammadi/webwork2:v1.4
-        name: ww2-pod
+      - image: hosseinmohammadi/webwork2:v1.5
+        name: ww-pod
         env:
         - name: WEBWORK_DB_HOST
           value: 'db'
@@ -48,42 +72,52 @@ spec:
         - name: WEBWORK_DB_NAME
           value: "webwork"
         - name: WEBWORK_DB_DSN
-          value: "DBI:mysql:webwork:db:3306"
+          value: "DBI:mysql:webwork:ww-db:3306"
         - name: WEBWORK_DB_PASSWORD
           value: "izuzem"
         - name: WEBWORK_DB_USER
           value: "webworkWrite"
         - name: WEBWORK_TIMEZONE
           value: "Europe/Istanbul"
+        - name: DEV
+          value: "0"
+        - name: APACHE_RUN_GROUP
+          value: "www-data"
         ports:
           - containerPort: 80
-            name: webwork-port
+            name: ww-port
         volumeMounts:
         - mountPath: "/opt/webwork/courses"
-          name: courses-volume
+          name: courses
           subPath: "courses"
+        - mountPath: "/opt/webwork/webwork2/htdocs/tmp"
+          name: htdocs
+          subPath: "ww2-htdocs-tmp"
       volumes:
-      - name: courses-volume
+      - name: courses
         persistentVolumeClaim:
-          claimName: webwork-pvc
+          claimName: ww-pvc-course
+      - name: htdocs
+        persistentVolumeClaim:
+          claimName: ww-pvc-htdocs
   replicas: 1
   selector:
     matchLabels:
-      app: ww2
-      type: webwork2
+      app: ww
+      type: webwork
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: webwork-service
+  name: ww-service
 spec:
   selector:
-    app: ww2
-    type: webwork2
+    app: ww
+    type: webwork
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 31200
+      nodePort: 31211
   type: NodePort
