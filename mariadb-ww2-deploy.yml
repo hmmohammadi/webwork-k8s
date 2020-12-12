@@ -50,7 +50,7 @@ spec:
         name: ww-mariadb
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: izuzem
+          value: YOURPASSWORD
         - name: MYSQL_DATABASE
           value: webwork
         - name: MYSQL_USER
