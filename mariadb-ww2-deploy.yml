@@ -79,7 +79,3 @@ spec:
     - name: wwmariadbportname
       port: 3306
       protocol: TCP
-      
-
-
-#kubectl create secret generic mariadb --from-literal=MARIADB_USER=bn_moodle --from-literal=MARIADB_DATABASE=bitnami_moodle --from-literal=ALLOW_EMPTY_PASSWORD=yes
